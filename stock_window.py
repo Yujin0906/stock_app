@@ -2,7 +2,6 @@
 주식 정보 검색 어플리케이션의 메인 윈도우 모듈
 MVC 모델에서 View를 담당하는 모듈
 '''
-
 import tkinter as tk
 import tkinter.ttk as ttk
 from typing import Final # 상수를 지정하기 위한 클래스
@@ -16,10 +15,11 @@ class StockSearchWin(MainWin):
     def __init__(self, 
                  event_handler, # Controller 객체
                  title: str = 'Main Window', 
-                 width: int = 1000, 
-                 height: int = 650, 
+                 width: int = 640, 
+                 height: int = 480, 
                  resize: tuple = (True, True)) -> None:
         super().__init__(title, width, height, resize)
+        
         self.eh = event_handler
         
     def _initLayout(self):
@@ -55,8 +55,9 @@ class StockSearchWin(MainWin):
         self.btnGo = ttk.Button(self.topPanel,
                                 text='Go',
                                 image=self.icon1,
-                                width=10
+                                width=10,
                                 #compound='left',
+                                command=lambda:self.eh.OnBtnGoClick(self, self.btnGo) # 처리할 메소드
                                 )
         self.btnGo.grid(row=0, column=2)
         
@@ -67,6 +68,10 @@ class StockSearchWin(MainWin):
         self.cbSearched['values'] = [1,2,3]
         self.cbSearched.current(0) # 출력값(노출되는 값)의 인덱스를 지정
         self.cbSearched.grid(row=0,column=3)
+        
+        self.cbSearched.bind("<<ComboboxSelected>>",
+                             lambda event :self.eh.OnSearchedComboBoxSelected(event, self, self.cbSearched))
+        
         self.btnFavor = ttk.Button(self.topPanel,
                                 text='즐겨찾기',
                                 # image=self.icon1,
@@ -96,7 +101,7 @@ class StockSearchWin(MainWin):
         ftNormal:Final = 12
         ftMalgun:Final = 'Malgun Gothic'
         
-        self.rpTopPanel = tk.PanedWindow(self.rightPanel, bg='red') # rp = RightPanel
+        self.rpTopPanel = tk.PanedWindow(self.rightPanel) # rp = RightPanel
         self.rpTopPanel.pack(side='top', fill='x')
         
         # 위젯들을 배치할 것임
@@ -130,7 +135,48 @@ class StockSearchWin(MainWin):
                                   foreground='red')
         self.lbChange.grid(row=3,column=0, sticky='nsw')
         
-        # 미들 윈도우 영역                
+        # 전일(어제 날짜 종가)
+        self.lbValYester = ttk.Label(self.rpTopPanel,
+                                    text="전일",
+                                    width=width_field_small,
+                                    font=(ftMalgun, ftNormal))
+        self.lbValYester.grid(row=2, column=1)
+        
+        # 고가
+        self.lbValGoga = ttk.Label(self.rpTopPanel,
+                                    text="고가",
+                                    width=width_field_small,
+                                    font=(ftMalgun, ftNormal))
+        self.lbValGoga.grid(row=2, column=2) 
+        
+        # 거래량
+        self.lbValCount = ttk.Label(self.rpTopPanel,
+                                    text="거래량",
+                                    font=(ftMalgun, ftNormal))
+        self.lbValCount.grid(row=2, column=3, sticky="ew") # ew -> 동서
+        
+        # 시가
+        self.lbValSiga = ttk.Label(self.rpTopPanel,
+                                    text="시가",
+                                    width=width_field_small,
+                                    font=(ftMalgun, ftNormal))
+        self.lbValSiga.grid(row=3, column=1)
+        
+        # 저가
+        self.lbValJeoga = ttk.Label(self.rpTopPanel,
+                                    text="저가",
+                                    width=width_field_small,
+                                    font=(ftMalgun, ftNormal))
+        self.lbValJeoga.grid(row=3, column=2) 
+        
+        # 거래대금
+        self.lbValAmount = ttk.Label(self.rpTopPanel,
+                                    text="거래대금",
+                                    font=(ftMalgun, ftNormal))
+        self.lbValAmount.grid(row=3, column=3, sticky="ew")
+        
+        
+        # 미들 윈도우 영역(그래프 영역)                
         self.rpMidPanel = tk.PanedWindow(self.rightPanel,
                                          bg='blue',
                                          height=height_mid_panel)
@@ -139,11 +185,24 @@ class StockSearchWin(MainWin):
         self.rpBottomPanel = tk.PanedWindow(self.rightPanel,bg='green')
         self.rpBottomPanel.pack(side='top', fill='both', expand=True)
         
+        self.dayStockList = ttk.Treeview(self.rpBottomPanel,
+                                         columns=('날짜', '종가', '전일비', '시가', '고가', '저가', '거래량'),
+                                         show='headings')
         
+        self.dayStockList.heading('날짜',text='날짜')
+        self.dayStockList.heading('종가',text='종가')
+        self.dayStockList.heading('전일비',text='전일비')
+        self.dayStockList.heading('시가',text='시가')
+        self.dayStockList.heading('고가',text='고가')
+        self.dayStockList.heading('저가',text='저가')
+        self.dayStockList.heading('거래량',text='거래량')
         
-class Dummy:
-    pass
+        self.dayStockList.column('날짜', width=80, anchor='e')
+        self.dayStockList.column('종가', width=80, anchor='e')
+        self.dayStockList.column('전일비', width=80, anchor='e')
+        self.dayStockList.column('시가', width=80, anchor='e')
+        self.dayStockList.column('고가', width=80, anchor='e')
+        self.dayStockList.column('저가', width=80, anchor='e')
+        self.dayStockList.column('거래량', width=80, anchor='e')
         
-dumy = Dummy()
-sswin = StockSearchWin(dumy) # 객체화, 생성
-sswin.Window.mainloop() # 윈도우 메인루프
+        self.dayStockList.pack(side='top', fill='both', expand=True)

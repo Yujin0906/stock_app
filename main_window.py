@@ -1,6 +1,6 @@
 '''
 Tkinter를 사용하여 윈도우 프로그램을 만들기 위한 베이스 메인 윈도우 클래스를 정의하는 모듈
-여기에서 기본 틀을 만들고 이 클래스를 상속받아서 App.에 필요한 메인 윈도우를 만들 것이다.
+여기에서 기본 틀을 만들고ㄴ 이 클래스를 상속받아서 App.에 필요한 메인 윈도우를 만들 것이다.
 '''
 import os
 import tkinter as tk
@@ -48,7 +48,7 @@ class MainWin:
 
     @staticmethod # staticmethod는 self가 들어가지 않음
     def get_current_path(file_name:str) -> str:
-      # 현재 실행 파일의 경로를 가져오기
+      # 현재 실행 파일의 경로와 file_name을 join해서 파일명을 가져오기
       cur_dir = os.path.dirname(os.path.abspath(__file__))
       file_path = os.path.join(cur_dir, file_name)
       
